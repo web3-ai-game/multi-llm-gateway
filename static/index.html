@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="zh-Hant" data-theme="black">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>multi-llm-chat · 企业级裸金属算力 · 聚合主流旗舰 AI</title>
+  <meta name="description" content="Grok 4.6、GLM 5.2 FP8、Nemotron 30B、Gemini 3.7、Claude Opus。一个账号，直连全球顶级裸金属 AI 算力集群。" />
+  <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml" />
+  <link rel="alternate icon" href="/favicon.png?v=3" type="image/png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#0b0b10" />
+  <link rel="stylesheet" href="/assets/css/style.css?v=42" />
+  <script>
+    (function () {
+      var t = localStorage.getItem("dw_theme") ||
+        (document.cookie.match(/dw_theme=([^;]*)/) || [])[1] || "black";
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="/"><span class="brand-dot"></span><span class="brand-text">multi-llm-chat</span></a>
+      <div class="nav-links">
+        <a class="nav-link hide-sm" href="#models">算力矩阵</a>
+        <a class="nav-link hide-sm" href="#promo">免费额度</a>
+        <div class="ctl-group" data-controls></div>
+        <div class="nav-auth-buttons" id="navAuthBtns">
+          <a class="btn btn-ghost btn-sm" href="/login" data-i18n="nav.login">登入</a>
+          <a class="btn btn-primary btn-sm" href="/login?mode=register" data-i18n="nav.register">註冊</a>
+        </div>
+        <div class="ctl-group" data-usermenu></div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 赛博裸金属英雄区 -->
+  <header class="hero cyber-hero">
+    <div class="hero-glow"></div>
+    <div class="container">
+      <div class="cyber-badge">
+        <span class="pulse-dot"></span>
+        <span>BARE-METAL AI GATEWAY · NVLINK CLUSTER</span>
+      </div>
+      <h1 class="cyber-title">直连全球裸金属算力<br>聚合顶级旗舰大模型</h1>
+      <p class="cyber-sub">
+        Grok 4.6 · GLM 5.2 FP8 · Nemotron 30B · Gemini 3.7 · Claude Opus<br>
+        毫秒级极速流式吞吐 · 原生未阉割全能基座 · 每日自动赠送免费额度
+      </p>
+      <div class="hero-cta" style="gap:12px;">
+        <a class="btn btn-primary btn-lg" href="/login" style="box-shadow:0 8px 28px rgba(56,189,248,0.35);">🚀 立即开始对话</a>
+        <a class="btn btn-ghost btn-lg" href="#models">⚡️ 浏览算力矩阵</a>
+      </div>
+
+      <!-- 企业级裸金属机房 HUD 演示视窗 -->
+      <div class="cyber-hud-frame" id="heroCarousel">
+        <div class="cyber-hud-inner">
+          <div class="hud-telemetry-tag hud-tag-tl">● CLUSTER: AP-SOUTHEAST-01</div>
+          <div class="hud-telemetry-tag hud-tag-tr">⚡ TTFT: 0.18s · NVLINK ACTIVE</div>
+          <div class="hud-telemetry-tag hud-tag-br">🛡 ZERO-LOG RETENTION</div>
+          <div class="hc-track">
+            <figure class="hc-slide active">
+              <img src="/img/hero_main.png?v=36" alt="Bare Metal Datacenter Cluster" width="1280" height="720" />
+              <figcaption>企业级高密度算力机房 · 超低延迟直连全球旗舰大模型</figcaption>
+            </figure>
+            <figure class="hc-slide">
+              <img src="/img/homepage_preview.png?v=36" alt="Bare Metal AI Accelerator Blade" width="1280" height="720" loading="lazy" />
+              <figcaption>裸金属加速集群架构 · 超强多卡并发极速吞吐</figcaption>
+            </figure>
+            <figure class="hc-slide">
+              <img src="/img/module_preview.png?v=36" alt="Global Datacenter NOC Topology" width="1280" height="720" loading="lazy" />
+              <figcaption>全链路智能路由调度 · 全球骨干网络高可用低抖动</figcaption>
+            </figure>
+          </div>
+        </div>
+        <div class="hc-dots" id="hcDots" style="margin-top:10px;"></div>
+      </div>
+
+      <!-- 硬核技术指标条 -->
+      <div class="telemetry-strip">
+        <div class="telemetry-box">
+          <div class="telemetry-num">0.18s</div>
+          <div class="telemetry-lbl">首字平均延迟 (TTFT)</div>
+        </div>
+        <div class="telemetry-box">
+          <div class="telemetry-num">100%</div>
+          <div class="telemetry-lbl">原生未阉割基座输出</div>
+        </div>
+        <div class="telemetry-box">
+          <div class="telemetry-num">120/hr</div>
+          <div class="telemetry-lbl">旗舰并发流式保障</div>
+        </div>
+        <div class="telemetry-box">
+          <div class="telemetry-num">Multi-Node</div>
+          <div class="telemetry-lbl">全球骨干网智能调度</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 实时算力矩阵 (取代繁琐碎卡片，精准一键直达) -->
+  <section class="section cyber-matrix-section" id="models">
+    <div class="container">
+      <div class="section-head" style="margin-bottom:12px;">
+        <h2 style="font-size:clamp(24px, 4vw, 36px); font-weight:800; letter-spacing:-0.01em;">⚡️ 实时算力矩阵</h2>
+        <p style="color:#94a3b8; font-size:15px; margin-top:6px;">精选各领域顶级旗舰大模型，随时一键直达</p>
+      </div>
+
+      <div class="cyber-grid">
+        <!-- 1. Supergrok -->
+        <a href="/chat" class="cyber-card">
+          <div class="cyber-card-top">
+            <div class="cyber-vendor-box">
+              <span class="cyber-vendor-ico"><img src="/img/icons/grok.png" alt="xAI" /></span>
+              <span class="cyber-card-title">Supergrok</span>
+            </div>
+            <span class="cyber-tag pro">旗舰推理</span>
+          </div>
+          <p class="cyber-card-desc">xAI 官方最强旗舰推理模型 · 深度思考与长链逻辑推演，限120条/时</p>
+          <div class="cyber-card-foot">
+            <span class="cyber-status-live">在线运行</span>
+            <span class="cyber-launch-btn">立即对话 →</span>
+          </div>
+        </a>
+
+        <!-- 2. GLM 5.2 FP8 -->
+        <a href="/chat" class="cyber-card">
+          <div class="cyber-card-top">
+            <div class="cyber-vendor-box">
+              <span class="cyber-vendor-ico"><img src="/img/icons/ai.png" alt="Zhipu" /></span>
+              <span class="cyber-card-title">GLM 5.2 (FP8 旗舰)</span>
+            </div>
+            <span class="cyber-tag pro">高精度旗舰</span>
+          </div>
+          <p class="cyber-card-desc">智谱最强超级旗舰 · 原生 FP8 高精度超强大脑，全能长文与专业问答顶尖</p>
+          <div class="cyber-card-foot">
+            <span class="cyber-status-live">在线运行</span>
+            <span class="cyber-launch-btn">立即对话 →</span>
+          </div>
+        </a>
+
+        <!-- 3. Nemotron 30B -->
+        <a href="/chat" class="cyber-card">
+          <div class="cyber-card-top">
+            <div class="cyber-vendor-box">
+              <span class="cyber-vendor-ico"><img src="/img/icons/ai.png" alt="NVIDIA" /></span>
+              <span class="cyber-card-title">Nemotron 30B</span>
+            </div>
+            <span class="cyber-tag pro">深度推理</span>
+          </div>
+          <p class="cyber-card-desc">英伟达 30B 旗舰深度推理模型 · 专精复杂数理逻辑与精准多步推导</p>
+          <div class="cyber-card-foot">
+            <span class="cyber-status-live">在线运行</span>
+            <span class="cyber-launch-btn">立即对话 →</span>
+          </div>
+        </a>
+
+        <!-- 4. Kimi K2.6 -->
+        <a href="/chat" class="cyber-card">
+          <div class="cyber-card-top">
+            <div class="cyber-vendor-box">
+              <span class="cyber-vendor-ico"><img src="/img/icons/ai.png" alt="Moonshot" /></span>
+              <span class="cyber-card-title">Kimi K2.6</span>
+            </div>
+            <span class="cyber-tag">长文旗舰</span>
+          </div>
+          <p class="cyber-card-desc">月之暗面旗舰长文本模型 · 超长上下文与深度语义理解，文献润色与解析</p>
+          <div class="cyber-card-foot">
+            <span class="cyber-status-live">在线运行</span>
+            <span class="cyber-launch-btn">立即对话 →</span>
+          </div>
+        </a>
+
+        <!-- 5. Gemini 3.7 Flash -->
+        <a href="/chat" class="cyber-card">
+          <div class="cyber-card-top">
+            <div class="cyber-vendor-box">
+              <span class="cyber-vendor-ico"><img src="/img/icons/gemini.png" alt="Google" /></span>
+              <span class="cyber-card-title">Gemini 3.7 Flash</span>
+            </div>
+            <span class="cyber-tag">极速推理</span>
+          </div>
+          <p class="cyber-card-desc">Google 最新一代混合推理与多模态极速模型 · 毫秒级极低延迟响应</p>
+          <div class="cyber-card-foot">
+            <span class="cyber-status-live">在线运行</span>
+            <span class="cyber-launch-btn">立即对话 →</span>
+          </div>
+        </a>
+
+        <!-- 6. MiniMax M3 & Qwen -->
+        <a href="/chat" class="cyber-card">
+          <div class="cyber-card-top">
+            <div class="cyber-vendor-box">
+              <span class="cyber-vendor-ico"><img src="/img/icons/ai.png" alt="MiniMax" /></span>
+              <span class="cyber-card-title">MiniMax M3 / Qwen</span>
+            </div>
+            <span class="cyber-tag">综合全能</span>
+          </div>
+          <p class="cyber-card-desc">名之梦最新多任务全能旗舰与通义千问 27B · 理科与中文综合强化</p>
+          <div class="cyber-card-foot">
+            <span class="cyber-status-live">在线运行</span>
+            <span class="cyber-launch-btn">立即对话 →</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 每日免费额度促销 -->
+  <section class="section promo-section" id="promo" style="padding-top:20px;">
+    <div class="container">
+      <div class="promo-card" style="background:rgba(20,24,34,0.85); border:1px solid rgba(56,189,248,0.25); box-shadow:0 20px 60px rgba(0,0,0,0.7);">
+        <div class="promo-text">
+          <span class="promo-tag" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3);">💎 每日赠送 · 无需绑卡</span>
+          <h2 style="font-size:clamp(22px, 3.5vw, 32px); font-weight:800; margin:12px 0 10px;">新用户注册，每天免费赠送额度</h2>
+          <p style="color:#94a3b8; font-size:15px; line-height:1.6; margin-bottom:18px;">
+            每日系统自动重置充能，无需绑定信用卡即可畅享。支持主流旗舰模型（Supergrok、GLM 5.2、Gemini Pro、DeepSeek）随心体验。
+          </p>
+          <a class="btn btn-primary btn-lg" href="/login?mode=register" style="box-shadow:0 8px 24px rgba(56,189,248,0.35);">立即免费注册领取</a>
+        </div>
+        <div class="promo-img">
+          <img src="/img/homepage_preview.png?v=36" alt="Bare Metal Compute Node" width="900" height="507" loading="lazy" style="border-radius:14px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.12);" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 手机端固定悬浮快捷操作坞 -->
+  <aside class="mobile-quick-dock">
+    <div class="dock-inner">
+      <a href="/login" class="dock-btn-main">🚀 立即进入对话</a>
+      <a href="/login?mode=register" class="dock-btn-sub">💎 领免费额度</a>
+    </div>
+  </aside>
+
+  <footer class="footer" style="border-top:1px solid rgba(255,255,255,0.08); margin-top:40px; padding:32px 0;">
+    <div class="container" style="text-align:center;">
+      <p style="font-size:14px; color:#94a3b8;"><strong style="color:#f8fafc;">multi-llm-chat</strong> · 企业级裸金属 AI 算力聚合平台</p>
+      <p style="margin-top:8px; font-size:12px; color:#64748b;">© 2026 multi-llm-chat · 版权所有 · <a href="https://chat.example.com" style="color:#64748b;text-decoration:none;">chat.example.com</a></p>
+    </div>
+  </footer>
+
+  <script src="/assets/js/common.js?v=45"></script>
+  <script>
+    // 英雄区轮播与触摸手势支持
+    (function () {
+      const slides = [...document.querySelectorAll(".hc-slide")];
+      const dotsBox = document.getElementById("hcDots");
+      const carousel = document.getElementById("heroCarousel");
+      if (!slides.length || !dotsBox) return;
+      let idx = 0, timer = null;
+      slides.forEach((_, i) => {
+        const d = document.createElement("button");
+        d.className = "hc-dot" + (i === 0 ? " active" : "");
+        d.type = "button";
+        d.setAttribute("aria-label", "slide " + (i + 1));
+        d.onclick = () => { show(i); start(); };
+        dotsBox.appendChild(d);
+      });
+      const dots = [...dotsBox.children];
+      function show(n) {
+        idx = (n + slides.length) % slides.length;
+        slides.forEach((s, i) => s.classList.toggle("active", i === idx));
+        dots.forEach((d, i) => d.classList.toggle("active", i === idx));
+      }
+      function start() { clearInterval(timer); timer = setInterval(() => show(idx + 1), 4500); }
+      function stop() { clearInterval(timer); }
+      carousel.addEventListener("mouseenter", stop);
+      carousel.addEventListener("mouseleave", start);
+
+      // 手机端左右滑动手势
+      let touchStartX = 0;
+      carousel.addEventListener("touchstart", (e) => { touchStartX = e.touches[0].clientX; }, {passive: true});
+      carousel.addEventListener("touchend", (e) => {
+        const diff = touchStartX - e.changedTouches[0].clientX;
+        if (Math.abs(diff) > 35) {
+          show(diff > 0 ? idx + 1 : idx - 1);
+          start();
+        }
+      }, {passive: true});
+
+      // 页面隐藏时暂停：隐藏标签页不跑 rAF，淡入过渡会卡住，回来可能看到空白幻灯片
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) stop();
+        else { show(idx); start(); }
+      });
+      if (!document.hidden) start();
+    })();
+
+    // 已登录状态自动切换为直达对话
+    document.addEventListener("dw:ready", async () => {
+      try {
+        const me = await DW.whoami();
+        if (me) {
+          document.querySelectorAll('a[href="/login"]').forEach(a => {
+            a.href = "/chat";
+            if (a.textContent.includes("开始") || a.textContent.includes("进入")) {
+              a.textContent = "🚀 进入对话";
+            }
+          });
+          document.querySelectorAll('a[href="/login?mode=register"]').forEach(a => a.href = "/chat");
+        }
+      } catch (e) {}
+    });
+  </script>
+</body>
+</html>

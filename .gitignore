@@ -1,0 +1,11 @@
+/data/
+*.db
+*.db-shm
+*.db-wal
+.env
+/deepweay-chat
+/deepweay-chat-linux
+*.log
+.DS_Store
+.idea/
+.playwright-mcp/

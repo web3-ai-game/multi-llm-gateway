@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="zh-Hant" data-theme="black">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>multi-llm-chat · 登入</title>
+  <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml" />
+  <link rel="alternate icon" href="/favicon.png?v=3" type="image/png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3" />
+  <link rel="stylesheet" href="/assets/css/style.css?v=25" />
+  <script>
+    (function () {
+      var t = localStorage.getItem("dw_theme") ||
+        (document.cookie.match(/dw_theme=([^;]*)/) || [])[1] || "black";
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+</head>
+<body>
+  <div class="chat-aurora" aria-hidden="true" style="position:fixed; inset:0; pointer-events:none; opacity:0.65;"></div>
+  <div class="ctl-group auth-corner" data-controls></div>
+  <div class="auth-wrap">
+    <form class="auth-card" id="authForm">
+      <a class="brand" href="/" style="justify-content:center; margin-bottom:18px;"><span class="brand-dot"></span><span class="brand-text">multi-llm-chat</span></a>
+
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab active" data-mode="login" data-i18n="login.tab">登入</button>
+        <button type="button" class="auth-tab" data-mode="register" data-i18n="reg.tab">註冊</button>
+      </div>
+
+      <p class="auth-sub" id="authSub" data-i18n="login.subtitle">歡迎回來</p>
+      <div class="auth-error" id="err"></div>
+
+      <div class="field">
+        <label data-i18n="login.username">用戶名</label>
+        <input id="username" type="text" autocomplete="username" data-i18n-ph="login.username.ph" />
+      </div>
+      <div class="field">
+        <label data-i18n="login.password">密碼</label>
+        <input id="password" type="password" autocomplete="current-password" data-i18n-ph="login.password.ph" />
+      </div>
+      <button class="btn btn-primary" type="submit" id="submitBtn" data-i18n="login.submit">登入</button>
+
+      <p class="auth-gift" id="giftNote" style="display:none;" data-i18n="reg.gift">
+        註冊即送每日免費額度，主流旗舰模型天天畅享
+      </p>
+    </form>
+  </div>
+
+  <script src="/assets/js/common.js?v=45"></script>
+  <script>
+    const form = document.getElementById("authForm");
+    const errEl = document.getElementById("err");
+    const btn = document.getElementById("submitBtn");
+    const subEl = document.getElementById("authSub");
+    const giftEl = document.getElementById("giftNote");
+    const pwdInput = document.getElementById("password");
+    let mode = "login";
+
+    function nextURL() {
+      const p = new URLSearchParams(location.search).get("next");
+      return p && p.startsWith("/") ? p : "/chat";
+    }
+
+    function setMode(m) {
+      mode = m;
+      document.querySelectorAll(".auth-tab").forEach((t) =>
+        t.classList.toggle("active", t.dataset.mode === m));
+      errEl.textContent = "";
+      const isReg = m === "register";
+      subEl.setAttribute("data-i18n", isReg ? "reg.subtitle" : "login.subtitle");
+      subEl.textContent = DW.t(isReg ? "reg.subtitle" : "login.subtitle");
+      btn.setAttribute("data-i18n", isReg ? "reg.submit" : "login.submit");
+      btn.textContent = DW.t(isReg ? "reg.submit" : "login.submit");
+      pwdInput.setAttribute("autocomplete", isReg ? "new-password" : "current-password");
+      giftEl.style.display = isReg ? "" : "none";
+    }
+
+    document.querySelectorAll(".auth-tab").forEach((t) => {
+      t.onclick = () => setMode(t.dataset.mode);
+    });
+
+    // 允许 /login?mode=register 直达注册
+    document.addEventListener("dw:ready", () => {
+      const m = new URLSearchParams(location.search).get("mode");
+      setMode(m === "register" ? "register" : "login");
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      errEl.textContent = "";
+      const username = document.getElementById("username").value.trim();
+      const password = pwdInput.value;
+      if (!username || !password) { errEl.textContent = DW.t("login.error"); return; }
+      btn.disabled = true;
+      const orig = btn.textContent;
+      btn.textContent = DW.t("login.loading");
+      try {
+        const path = mode === "register" ? "/api/register" : "/api/login";
+        const user = await DW.api(path, { method: "POST", body: JSON.stringify({ username, password }) });
+        const next = new URLSearchParams(location.search).get("next");
+        if (next && next.startsWith("/")) {
+          window.location.href = next;
+        } else if (user && user.is_admin) {
+          window.location.href = "/admin";
+        } else {
+          window.location.href = "/chat";
+        }
+      } catch (e2) {
+        errEl.textContent = e2.message || DW.t("login.error");
+        btn.disabled = false;
+        btn.textContent = orig;
+      }
+    });
+  </script>
+</body>
+</html>

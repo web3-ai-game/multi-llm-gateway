@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-Hant" data-theme="black">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>multi-llm-chat · 用量</title>
+  <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml" />
+  <link rel="alternate icon" href="/favicon.png?v=3" type="image/png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3" />
+  <link rel="stylesheet" href="/assets/css/style.css?v=25" />
+  <script>
+    (function () {
+      var t = localStorage.getItem("dw_theme") ||
+        (document.cookie.match(/dw_theme=([^;]*)/) || [])[1] || "black";
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="/"><span class="brand-dot"></span><span class="brand-text">multi-llm-chat</span></a>
+      <div class="nav-links">
+        <div class="ctl-group" data-controls></div>
+        <div class="ctl-group" data-usermenu></div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container" style="padding-top:36px; padding-bottom:60px;">
+    <div class="page-head"><h1 data-i18n="dash.title">用量統計</h1></div>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="label" data-i18n="dash.balance">剩餘額度</div>
+        <div class="value accent" id="balance">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="label" data-i18n="dash.total.spend">累計花費</div>
+        <div class="value" id="totalSpend">$0.00</div>
+      </div>
+      <div class="stat-card">
+        <div class="label" data-i18n="dash.total.messages">累計回覆數</div>
+        <div class="value" id="totalMessages">0</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2 data-i18n="dash.by.model">各模型花費</h2>
+      <div id="byModel"></div>
+    </div>
+
+    <div class="panel">
+      <h2 data-i18n="dash.by.day">近 30 天趨勢</h2>
+      <div id="byDay"></div>
+    </div>
+  </div>
+
+  <script src="/assets/js/common.js?v=45"></script>
+  <script src="/assets/js/dashboard.js?v=17"></script>
+</body>
+</html>

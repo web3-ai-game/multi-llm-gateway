@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="zh-Hant" data-theme="black" data-fx="rich">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+  <title>multi-llm-chat · 对话</title>
+  <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml" />
+  <link rel="alternate icon" href="/favicon.png?v=3" type="image/png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="multi-llm-chat" />
+  <meta name="theme-color" content="#0b0b10" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,520;9..144,640&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/style.css?v=42" />
+  <script>
+    (function () {
+      var t = localStorage.getItem("dw_theme") ||
+        (document.cookie.match(/dw_theme=([^;]*)/) || [])[1] || "black";
+      document.documentElement.setAttribute("data-theme", t);
+      var fx = localStorage.getItem("dw_chat_fx") || "rich";
+      document.documentElement.setAttribute("data-fx", fx);
+    })();
+  </script>
+</head>
+<body>
+  <div class="chat-shell">
+    <div class="sidebar-backdrop" id="backdrop"></div>
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-head">
+        <a class="brand" href="/">
+          <img class="brand-logo-img" src="/img/icons/logo.png" width="22" height="22" alt="" />
+          <span class="brand-text">multi-llm-chat</span>
+        </a>
+      </div>
+      <button class="new-chat-btn" id="newChatBtn">
+        <span class="plus">＋</span>
+        <span data-i18n="chat.newchat">新对话</span>
+      </button>
+
+      <div class="session-list" id="sessionList"></div>
+
+      <div class="sidebar-foot">
+        <select id="assistantSelect" class="assistant-select" aria-label="助手"></select>
+        <a class="foot-ico" href="/settings" title="设置">设置</a>
+        <a class="foot-ico" id="adminLink" href="/admin" title="管理后台" style="display:none;">后台</a>
+      </div>
+    </aside>
+
+    <main class="chat-main">
+      <div class="chat-aurora" aria-hidden="true"></div>
+      <div class="chat-topbar">
+        <button class="menu-btn" id="menuBtn" aria-label="menu">☰</button>
+        <button type="button" class="topbar-new-chat-btn" id="topbarNewChatBtn" title="开启新对话">
+          <span class="t-plus">＋</span>
+          <span>新对话</span>
+        </button>
+        <div class="topbar-left">
+          <div class="assistant-chip" id="assistantChip"></div>
+
+          <!-- Cherry Studio 风格模型下拉选择器 -->
+          <div class="model-picker-wrap" id="modelPickerWrap">
+            <button type="button" class="model-picker-btn" id="modelPickerBtn" aria-haspopup="true" aria-expanded="false" title="切换模型">
+              <span class="mp-vendor-icon" id="mpVendorIcon"><img src="/img/icons/grok.png" class="mp-vendor-img" alt="grok" /></span>
+              <span class="mp-model-name" id="mpModelName">Supergrok</span>
+              <span class="mp-tag" id="mpTag">旗舰推理</span>
+              <svg class="mp-caret" viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="topbar-links">
+          <span class="quota-pill" id="quotaPill" hidden></span>
+          <button class="nav-link topbar-btn" id="exportBtn" type="button" data-i18n="chat.export">匯出對話</button>
+          <a class="nav-link" href="/settings" title="settings"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></a>
+        </div>
+      </div>
+      <div class="messages" id="messages"></div>
+      <div class="composer">
+        <div class="quick-prompts" id="quickPrompts">
+          <button class="preset-btn" type="button" data-prompt="请帮我重构并优化以下代码，提升可读性和性能：\n\n">代码优化</button>
+          <button class="preset-btn" type="button" data-prompt="请将以下内容进行长文润色与结构梳理，用清晰优雅的中文表达：\n\n">文章润色</button>
+          <button class="preset-btn" type="button" data-prompt="请将以下内容翻译为准确地道的英文：\n\n">翻译英文</button>
+          <button class="preset-btn" type="button" data-prompt="请为以下问题或场景提供 5 个富有创意的解决方案或头脑风暴思路：\n\n">头脑风暴</button>
+          <button class="preset-btn" type="button" data-prompt="请用通俗易懂且逻辑严密的语言，详细解释以下概念或代码原理：\n\n">深入解析</button>
+        </div>
+        <div class="composer-dock">
+          <div class="composer-tools">
+            <button type="button" class="tool-toggle" id="toggleWebSearch" title="联网搜索 (获取最新网络信息)">
+              <span class="tool-icon"><img src="/img/icons/search.png" style="width:14px;height:14px;vertical-align:middle;display:inline-block;" alt="" /></span>
+              <span class="tool-label">联网搜索</span>
+            </button>
+            <button type="button" class="tool-toggle" id="toggleThinking" title="深度思考 (显示推导过程与思考)">
+              <span class="tool-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"></path><line x1="9" y1="21" x2="15" y2="21"></line></svg></span>
+              <span class="tool-label">深度思考</span>
+            </button>
+            <button type="button" class="tool-toggle" id="attachImageBtn" title="添加图片 (支持粘贴/拖拽/上传)">
+              <span class="tool-icon"><img src="/img/icons/image.png" style="width:14px;height:14px;vertical-align:middle;display:inline-block;" alt="" /></span>
+              <span class="tool-label">图片</span>
+            </button>
+            <input type="file" id="imageFileInput" accept="image/*" multiple style="display:none;" />
+          </div>
+          <div class="image-preview-bar" id="imagePreviewBar" style="display:none;"></div>
+          <div class="composer-inner">
+            <textarea id="input" rows="1" placeholder="输入消息，Enter 发送…" data-i18n-ph="chat.input.ph"></textarea>
+            <button class="send-btn" id="sendBtn" aria-label="send">➤</button>
+          </div>
+          <p class="composer-hint" id="composerHint">Enter 发送 · Shift+Enter 换行 · 支持拖拽/粘贴图片</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="model-sheet" id="modelSheet" hidden>
+    <div class="model-sheet-backdrop" id="modelSheetBackdrop"></div>
+    <div class="model-sheet-panel" id="modelDropdown" role="dialog" aria-label="选择模型">
+      <div class="md-grab" aria-hidden="true"></div>
+      <div class="md-search-box">
+        <span class="md-search-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
+        <input type="text" id="modelSearchInput" placeholder="搜索模型" autocomplete="off" />
+      </div>
+      <div class="md-list" id="modelDropdownList"></div>
+    </div>
+  </div>
+
+  <div class="chat-toast" id="chatToast"></div>
+
+  <div class="modal-backdrop" id="paywall">
+    <div class="modal" style="max-width:440px;">
+      <div class="paywall-body">
+        <div class="paywall-icon" id="pwIcon"><img src="/img/icons/logo.png" style="width:36px;height:36px;object-fit:contain;" alt="" /></div>
+        <h2 id="pwTitle" style="margin-bottom:12px;">升級 Pro</h2>
+        <p class="paywall-msg" id="pwMsg"></p>
+        <div class="paywall-count" id="pwCountBox">
+          <span data-i18n="pw.reset.in">距離免費額度重置</span> <b id="pwCountdown">--:--:--</b>
+        </div>
+        <div class="modal-actions" style="justify-content:center;">
+          <button class="btn btn-ghost" id="pwLater" data-i18n="pw.later">稍後再說</button>
+          <a class="btn btn-primary" href="/billing" data-i18n="pw.upgrade">查看方案</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/assets/js/common.js?v=45"></script>
+  <script src="/assets/js/chat.js?v=45"></script>
+</body>
+</html>

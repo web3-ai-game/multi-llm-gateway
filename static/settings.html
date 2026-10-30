@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-Hant" data-theme="black">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>multi-llm-chat · 设置</title>
+  <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml" />
+  <link rel="alternate icon" href="/favicon.png?v=3" type="image/png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3" />
+  <link rel="stylesheet" href="/assets/css/style.css?v=25" />
+  <script>
+    (function () {
+      var t = localStorage.getItem("dw_theme") ||
+        (document.cookie.match(/dw_theme=([^;]*)/) || [])[1] || "black";
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="/"><span class="brand-dot"></span><span class="brand-text">multi-llm-chat</span></a>
+      <div class="nav-links">
+        <div class="ctl-group" data-controls></div>
+        <div class="ctl-group" data-usermenu></div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container" style="padding-top:36px; padding-bottom:60px;">
+    <div class="page-head"><h1 data-i18n="settings.title">設定</h1></div>
+
+    <!-- 套餐 / 充值入口 -->
+    <div class="panel" id="planPanel">
+      <h2 data-i18n="settings.plan">我的方案</h2>
+      <div class="plan-row">
+        <div>
+          <div class="plan-row-name">
+            <span id="sPlanName">—</span>
+            <span class="tag admin" id="sProTag" style="display:none;" data-i18n="settings.plan.pro">Pro</span>
+          </div>
+          <div class="plan-row-sub">
+            <span data-i18n="settings.plan.today">今日已用</span>
+            <b id="sToday">0</b> ·
+            <span data-i18n="settings.plan.reset">距重置</span>
+            <b id="sCountdown">--:--:--</b>
+          </div>
+        </div>
+        <a class="btn btn-primary" href="/billing" data-i18n="settings.plan.upgrade">升級 / 充值</a>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2 data-i18n="settings.assistants">我的助手</h2>
+      <p style="color:var(--text-dim); font-size:14px; margin-bottom:18px;" data-i18n="settings.assistants.desc"></p>
+      <div class="assistant-list" id="assistantList"></div>
+    </div>
+
+    <div class="panel">
+      <h2 data-i18n="settings.account">帳號安全</h2>
+      <div class="auth-error" id="pwdMsg" style="text-align:left;"></div>
+      <form id="pwdForm" style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;">
+        <div class="field" style="margin:0; flex:1; min-width:180px;">
+          <label data-i18n="settings.old.pwd">目前密碼</label>
+          <input id="oldPwd" type="password" class="field-input" />
+        </div>
+        <div class="field" style="margin:0; flex:1; min-width:180px;">
+          <label data-i18n="settings.new.pwd">新密碼（至少 6 位）</label>
+          <input id="newPwd" type="password" class="field-input" />
+        </div>
+        <button class="btn btn-primary" type="submit" data-i18n="settings.change.pwd">修改密碼</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- assistant editor modal -->
+  <div class="modal-backdrop" id="modal">
+    <div class="modal" style="max-width:540px;">
+      <h2 id="modalTitle" data-i18n="settings.new.assistant">新增助手</h2>
+      <div class="auth-error" id="modalErrMsg" style="display:none; text-align:left; margin-bottom:12px;"></div>
+
+      <div id="templateSection" style="margin-bottom:14px;">
+        <label style="font-size:12px; color:var(--text-faint); display:block; margin-bottom:6px;">快速套用精選模板：</label>
+        <div class="preset-group" id="tplChips" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+      </div>
+
+      <div class="row" style="margin-bottom:16px;">
+        <div style="flex:1;">
+          <label class="cfg-field" style="margin:0;"><span data-i18n="settings.a.name">助手名稱</span></label>
+          <input id="aName" class="field-input" placeholder="例如：编程专家、长文润色..." />
+          <input id="aEmoji" type="hidden" value="AI" />
+        </div>
+      </div>
+      <div class="cfg-field">
+        <label data-i18n="settings.a.prompt">系統提示詞</label>
+        <textarea id="aPrompt" class="field-input" rows="5" data-i18n-ph="settings.a.prompt.ph"></textarea>
+      </div>
+      <div class="cfg-field">
+        <label><span data-i18n="settings.a.temp">溫度（創意度）</span></label>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <input id="aTemp" type="range" min="0" max="2" step="0.1" value="0.7" />
+          <span class="range-val" id="aTempVal">0.7</span>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="aDelete" style="margin-right:auto; display:none; border-color:#e0674f; color:#e0674f;" data-i18n="settings.delete">刪除</button>
+        <button class="btn btn-ghost" id="aCancel" data-i18n="settings.cancel">取消</button>
+        <button class="btn btn-primary" id="aSave" data-i18n="settings.save">儲存</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/assets/js/common.js?v=45"></script>
+  <script src="/assets/js/settings.js?v=18"></script>
+</body>
+</html>

@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="zh-Hant" data-theme="black">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>multi-llm-chat · 管理</title>
+  <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml" />
+  <link rel="alternate icon" href="/favicon.png?v=3" type="image/png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#0b0b10" />
+  <link rel="stylesheet" href="/assets/css/style.css?v=42" />
+  <script>
+    (function () {
+      var t = localStorage.getItem("dw_theme") ||
+        (document.cookie.match(/dw_theme=([^;]*)/) || [])[1] || "black";
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="/"><span class="brand-dot"></span><span class="brand-text">multi-llm-chat</span></a>
+      <div class="nav-links">
+        <div class="ctl-group" data-controls></div>
+        <div class="ctl-group" data-usermenu></div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container" style="padding-top:36px; padding-bottom:60px;">
+    <div class="page-head" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+      <h1 data-i18n="admin.title">管理後台</h1>
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+        <span class="tag" id="myRoleTag" style="display:none;"></span>
+        <a class="btn btn-ghost btn-sm" href="/chat">前往對話前台</a>
+      </div>
+    </div>
+    <p style="color:var(--text-dim); font-size:13px; margin:-8px 0 18px;" data-i18n="admin.rbac.hint">
+      權限分層：站長（密鑰/收款）→ 管理員（用戶角色/模型）→ 客服（用戶運營）→ 普通用戶。
+    </p>
+
+    <div class="stat-grid" data-need="stats.read">
+      <div class="stat-card"><div class="label" data-i18n="admin.stats.users">用戶總數</div><div class="value" id="stUsers">0</div></div>
+      <div class="stat-card"><div class="label" data-i18n="admin.stats.messages">總回覆數</div><div class="value" id="stMessages">0</div></div>
+      <div class="stat-card"><div class="label" data-i18n="admin.stats.spend">總花費</div><div class="value accent" id="stSpend">$0.00</div></div>
+      <div class="stat-card"><div class="label" data-i18n="admin.stats.active">近 7 天活躍</div><div class="value" id="stActive">0</div></div>
+    </div>
+
+    <!-- VPS 服务器实时状态 -->
+    <div class="panel" style="margin-bottom:24px;" data-need="system.read">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h2 style="margin:0; font-size:16px;">VPS 伺服器狀態 (即時監控)</h2>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <button type="button" class="btn btn-ghost btn-sm" id="btnViewLogs">查看日誌</button>
+          <a href="/api/admin/backup" class="btn btn-ghost btn-sm" id="btnDownloadBackup" data-need="config.manage">下載資料庫快照</a>
+          <span style="font-size:12px; color:var(--text-faint);" id="vpsRefreshTime">即時採集</span>
+        </div>
+      </div>
+      <div class="stat-grid" style="margin-bottom:0;">
+        <div class="stat-card">
+          <div class="label">CPU 使用率</div>
+          <div class="value" id="vpsCPU">--%</div>
+          <div style="font-size:11px; color:var(--text-faint); margin-top:4px;" id="vpsCPUSub">-- 核心</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">內存 (RAM)</div>
+          <div class="value" id="vpsRAM">--%</div>
+          <div style="font-size:11px; color:var(--text-faint); margin-top:4px;" id="vpsRAMSub">-- / -- MB</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">磁碟空間</div>
+          <div class="value" id="vpsDisk">--%</div>
+          <div style="font-size:11px; color:var(--text-faint); margin-top:4px;" id="vpsDiskSub">-- / -- GB</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">系統運作時間</div>
+          <div class="value" style="font-size:15px; line-height:1.4;" id="vpsUptime">--</div>
+          <div style="font-size:11px; color:var(--text-faint); margin-top:4px;" id="vpsLoad">負載: --</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 服务商管理 (Cherry Studio 风格多 Provider) -->
+    <div class="panel" data-need="providers.manage">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+        <div>
+          <h2 data-i18n="admin.provider.title">服務商管理 (AI Providers)</h2>
+          <p style="color:var(--text-dim); font-size:13px; margin-top:4px;" data-i18n="admin.provider.desc">
+            支援添加多個 Sub2API 專線（如 Grok 專線、Gemini 專線）、官方 Gemini API、xAI API、OpenRouter 等，點擊「自動探測」一鍵拉取模型。
+          </p>
+        </div>
+        <button class="btn btn-primary" id="addProviderBtn" data-i18n="admin.provider.add">➕ 添加服務商</button>
+      </div>
+
+      <div id="providerList" class="provider-grid"></div>
+    </div>
+
+    <div class="panel" data-need="users.write">
+      <h2 data-i18n="admin.create.title">新增用戶</h2>
+      <div class="auth-error" id="createErr"></div>
+      <form id="createForm" style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;">
+        <div class="field" style="margin:0; flex:1; min-width:150px;">
+          <label data-i18n="admin.create.username">用戶名</label>
+          <input id="newUsername" type="text" class="field-input" />
+        </div>
+        <div class="field" style="margin:0; flex:1; min-width:150px;">
+          <label data-i18n="admin.create.password">初始密碼（至少 6 位）</label>
+          <input id="newPassword" type="text" class="field-input" />
+        </div>
+        <div class="field" style="margin:0; width:150px;">
+          <label data-i18n="admin.create.quota">初始配額（USD）</label>
+          <input id="newQuota" type="number" step="0.5" min="0" value="1" class="field-input" />
+        </div>
+        <div class="field" style="margin:0; width:150px;" data-need="users.role">
+          <label data-i18n="admin.table.role">角色</label>
+          <select id="newRole" class="field-input">
+            <option value="user" data-i18n="admin.role.user">用戶</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" type="submit" data-i18n="admin.create.submit">建立用戶</button>
+      </form>
+    </div>
+
+    <!-- 收款与计费配置 -->
+    <div class="panel" data-need="config.manage">
+      <h2 data-i18n="admin.pay.title">收款與計費配置</h2>
+      <p style="color:var(--text-dim); font-size:13px; margin-bottom:18px;" data-i18n="admin.pay.desc">
+        上傳收款碼、設定 Pro 價格與每日免費額度。收款碼存入資料庫，重新部署不會遺失。
+      </p>
+      <div class="auth-error" id="payMsg" style="text-align:left;"></div>
+
+      <div class="pay-cfg-grid">
+        <div class="cfg-field">
+          <label data-i18n="admin.pay.alipay">支付寶收款碼</label>
+          <div class="qr-slot" id="alipayPreview"><span class="pay-empty" data-i18n="admin.pay.none">未設定</span></div>
+          <input type="file" accept="image/*" id="alipayFile" class="field-input" style="margin-top:8px;" />
+        </div>
+        <div class="cfg-field">
+          <label data-i18n="admin.pay.wechat">微信收款碼</label>
+          <div class="qr-slot" id="wechatPreview"><span class="pay-empty" data-i18n="admin.pay.none">未設定</span></div>
+          <input type="file" accept="image/*" id="wechatFile" class="field-input" style="margin-top:8px;" />
+        </div>
+      </div>
+
+      <div class="row-fields">
+        <div class="cfg-field">
+          <label data-i18n="admin.pay.email">付款聯繫郵箱</label>
+          <input id="payEmail" class="field-input" />
+        </div>
+        <div class="cfg-field">
+          <label data-i18n="admin.pay.proprice">Pro 價格（USD）</label>
+          <input id="payProPrice" type="number" step="0.5" min="0" class="field-input" />
+        </div>
+        <div class="cfg-field">
+          <label data-i18n="admin.pay.mintopup">最低充值（USD）</label>
+          <input id="payMinTopup" type="number" step="0.5" min="0" class="field-input" />
+        </div>
+        <div class="cfg-field">
+          <label data-i18n="admin.pay.nudge">第幾條彈升級提示</label>
+          <input id="payNudge" type="number" step="1" min="1" class="field-input" />
+        </div>
+      </div>
+
+      <h3 style="font-size:15px; margin:18px 0 10px;" data-i18n="admin.limits.title">每日免費額度（條/天）</h3>
+      <div class="table-scroll">
+        <table class="data">
+          <thead>
+            <tr>
+              <th data-i18n="admin.limits.tier">檔位</th>
+              <th data-i18n="admin.limits.free">免費用戶</th>
+              <th data-i18n="admin.limits.pro">Pro 會員</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td data-i18n="bill.tier.cheap">便宜檔</td><td><input id="limFreeCheap" type="number" class="mini-input" /></td><td><input id="limProCheap" type="number" class="mini-input" /></td></tr>
+            <tr><td data-i18n="bill.tier.standard">主流檔</td><td><input id="limFreeStandard" type="number" class="mini-input" /></td><td><input id="limProStandard" type="number" class="mini-input" /></td></tr>
+            <tr><td data-i18n="bill.tier.premium">高階檔</td><td><input id="limFreePremium" type="number" class="mini-input" /></td><td><input id="limProPremium" type="number" class="mini-input" /></td></tr>
+            <tr><td data-i18n="bill.tier.pro">旗艦檔</td><td><input id="limFreePro" type="number" class="mini-input" /></td><td><input id="limProPro" type="number" class="mini-input" /></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="color:var(--text-faint); font-size:12px; margin-top:8px;" data-i18n="admin.limits.hint">
+        0 表示該檔需要 Pro 會員才能使用。紐約 0 點重置。
+      </p>
+      <button class="btn btn-primary" id="paySave" style="margin-top:14px;" data-i18n="admin.pay.save">儲存收款與額度</button>
+    </div>
+
+    <!-- 模型管理与前端展示 -->
+    <div class="panel" data-need="models.manage">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
+        <div>
+          <h2 data-i18n="admin.models.title">模型管理與前端展示</h2>
+          <p style="color:var(--text-dim); font-size:13px; margin-top:4px;" data-i18n="admin.models.desc">
+            預設只開四大家族各 2 款（極速 + 推理）。其餘模型可保留在庫裡但對用戶隱藏。
+          </p>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          <input type="text" id="modelSearch" class="field-input" placeholder="搜尋模型 ID 或名稱..." style="width:200px; padding:7px 10px; font-size:13px;" />
+          <select id="modelVendorFilter" class="field-input" style="width:130px; padding:7px 10px; font-size:13px;">
+            <option value="">全部廠商</option>
+            <option value="grok">Grok</option>
+            <option value="gemini">Gemini</option>
+            <option value="claude">Claude</option>
+            <option value="gpt">GPT</option>
+            <option value="deepseek">DeepSeek</option>
+            <option value="minimax">MiniMax</option>
+            <option value="kimi">Kimi</option>
+            <option value="other">其他</option>
+          </select>
+          <button class="btn btn-primary btn-sm" id="btnFeatured8">僅啟用精選 8 款</button>
+          <button class="btn btn-ghost btn-sm" id="btnDiagnoseModels">⚡ 全模型連通性診斷</button>
+          <button class="btn btn-ghost btn-sm" id="btnEnableAll">全部開啟</button>
+          <button class="btn btn-ghost btn-sm" id="btnDisableAll">全部關閉</button>
+        </div>
+      </div>
+
+      <div class="table-scroll">
+        <table class="data">
+          <thead>
+            <tr>
+              <th style="width:32px;"></th>
+              <th style="width:90px; text-align:center;">用戶端顯示</th>
+              <th>模型 ID</th>
+              <th>展示名稱</th>
+              <th>風格 / 價格</th>
+              <th>所屬服務商</th>
+              <th>廠商分類</th>
+              <th>計費檔位</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="modelRows"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel" data-need="users.read">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+        <h2 style="margin:0;" data-i18n="admin.users.title">用戶管理</h2>
+        <input type="text" id="userSearch" class="field-input" data-i18n-ph="admin.users.search" placeholder="搜尋用戶名…" style="width:200px; padding:7px 10px; font-size:13px;" />
+      </div>
+      <div class="table-scroll">
+        <table class="data">
+          <thead>
+            <tr>
+              <th data-i18n="admin.table.username">用戶名</th>
+              <th data-i18n="admin.table.role">角色</th>
+              <th data-i18n="admin.table.today">今日</th>
+              <th data-i18n="admin.table.messages">總回覆</th>
+              <th data-i18n="admin.table.spend">花費</th>
+              <th data-i18n="admin.table.balance">餘額</th>
+              <th data-i18n="admin.table.status">狀態</th>
+              <th data-i18n="admin.table.action">操作</th>
+            </tr>
+          </thead>
+          <tbody id="userRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 模态框 1：添加 / 编辑服务商 -->
+  <div class="modal-backdrop" id="providerModal">
+    <div class="modal" style="max-width:560px;">
+      <h2 id="pModalTitle">添加服務商</h2>
+      <p style="color:var(--text-dim); font-size:13px; margin-bottom:14px;">
+        點擊預設可快速填入常用 Base URL：
+      </p>
+      <div class="preset-group">
+        <button type="button" class="preset-btn" data-preset="gemini-official">Google Gemini 官方</button>
+        <button type="button" class="preset-btn" data-preset="xai-grok">xAI Grok 官方</button>
+        <button type="button" class="preset-btn" data-preset="deepseek-official">DeepSeek 官方</button>
+        <button type="button" class="preset-btn" data-preset="openai-official">OpenAI 官方</button>
+        <button type="button" class="preset-btn" data-preset="openrouter">OpenRouter</button>
+        <button type="button" class="preset-btn" data-preset="vultr-inference">Vultr 推理</button>
+      </div>
+
+      <div class="auth-error" id="pModalErr" style="margin-bottom:12px;"></div>
+
+      <input type="hidden" id="pEditID" />
+      <div class="cfg-field">
+        <label>服務商名稱 *</label>
+        <input id="pName" class="field-input" placeholder="例如：Google Gemini 官方" autocomplete="off" />
+      </div>
+      <div class="cfg-field">
+        <label>Base URL *</label>
+        <input id="pBaseURL" class="field-input" placeholder="例如：http://127.0.0.1:8000/v1" autocomplete="off" />
+        <div class="hint">保存时会自动探测：先读 /models，再发一条试聊。只有探测通过的渠道才会出现在用户下拉里。</div>
+      </div>
+      <div class="cfg-field">
+        <label>API Key / 令牌</label>
+        <div style="position:relative; display:flex; align-items:center;">
+          <input id="pAPIKey" class="field-input" type="text" placeholder="貼上 API Key（編輯時留空表示不修改）" autocomplete="off" spellcheck="false" style="padding-right:42px; width:100%;" />
+          <button type="button" id="pToggleKey" title="顯示/隱藏密鑰" style="position:absolute; right:8px; background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:16px; padding:4px;">顯示</button>
+        </div>
+      </div>
+      <div class="cfg-field" style="display:flex; align-items:center; gap:10px; margin-top:10px;">
+        <label class="switch">
+          <input type="checkbox" id="pEnabled" checked />
+          <span class="slider"></span>
+        </label>
+        <span style="font-size:14px; font-weight:600;">啟用此服務商</span>
+      </div>
+
+      <div class="modal-actions" style="flex-wrap:wrap; gap:8px;">
+        <button type="button" class="btn btn-ghost" id="pModalCancel">取消</button>
+        <button type="button" class="btn btn-ghost" id="pModalSaveOnly">僅儲存</button>
+        <button type="button" class="btn btn-primary" id="pModalSave">儲存並探測連通</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 模态框 2：模型探测与批量导入 -->
+  <div class="modal-backdrop" id="detectModal">
+    <div class="modal" style="max-width:760px; max-height:85vh;">
+      <h2>模型探測結果</h2>
+      <p id="detectSubtitle" style="color:var(--text-dim); font-size:13px; margin-bottom:14px;">
+        正在向服務商請求 /models...
+      </p>
+
+      <div class="auth-error" id="detectErr" style="margin-bottom:12px;"></div>
+
+      <div id="detectContent" style="display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <span id="detectCount" style="font-size:13px; font-weight:600; color:var(--text-dim);">共探測到 0 個模型</span>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-ghost btn-sm" id="detectSelectAll">全選</button>
+            <button class="btn btn-ghost btn-sm" id="detectDeselectAll">全不選</button>
+          </div>
+        </div>
+
+        <div class="table-scroll" style="max-height:360px; border:1px solid var(--border); border-radius:8px;">
+          <table class="data" style="margin:0;">
+            <thead>
+              <tr>
+                <th style="width:40px; text-align:center;">選取</th>
+                <th>上游模型 ID</th>
+                <th>展示名稱</th>
+                <th>廠商分類</th>
+                <th>檔位</th>
+              </tr>
+            </thead>
+            <tbody id="detectRows"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="detectCancel">關閉</button>
+        <button type="button" class="btn btn-ghost" id="detectFeatured">略過探測，啟用精選 8 款</button>
+        <button type="button" class="btn btn-primary" id="detectImport" style="display:none;">匯入並上架選中模型</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 模态框 3：编辑单个模型 -->
+  <div class="modal-backdrop" id="editModelModal">
+    <div class="modal" style="max-width:480px;">
+      <h2>編輯模型</h2>
+      <div class="auth-error" id="mEditErr" style="margin-bottom:12px;"></div>
+
+      <input type="hidden" id="mEditID" />
+      <input type="hidden" id="mEditProviderID" />
+      <input type="hidden" id="mEditRawID" />
+
+      <div class="cfg-field">
+        <label>模型 ID</label>
+        <input id="mEditIDDisplay" class="field-input" disabled style="opacity:0.6;" />
+      </div>
+      <div class="cfg-field">
+        <label>前端展示名稱 *</label>
+        <input id="mEditName" class="field-input" />
+      </div>
+      <div class="cfg-field">
+        <label>廠商分類</label>
+        <select id="mEditVendor" class="field-input">
+          <option value="grok">Grok · xAI</option>
+          <option value="gemini">Gemini · Google</option>
+          <option value="claude">Claude · Anthropic</option>
+          <option value="gpt">GPT · OpenAI</option>
+          <option value="deepseek">DeepSeek</option>
+          <option value="minimax">MiniMax</option>
+          <option value="kimi">Kimi · Moonshot</option>
+          <option value="other">其他 · Custom</option>
+        </select>
+      </div>
+      <div class="cfg-field">
+        <label>計費檔位</label>
+        <select id="mEditTier" class="field-input">
+          <option value="cheap">便宜檔 (Cheap)</option>
+          <option value="standard">主流檔 (Standard)</option>
+          <option value="premium">高階檔 (Premium)</option>
+          <option value="pro">旗艦檔 (Pro)</option>
+        </select>
+      </div>
+      <div class="cfg-field" style="display:flex; align-items:center; gap:10px;">
+        <label class="switch">
+          <input type="checkbox" id="mEditEnabled" checked />
+          <span class="slider"></span>
+        </label>
+        <span style="font-size:14px; font-weight:600;">在用戶聊天端顯示</span>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="mEditCancel">取消</button>
+        <button type="button" class="btn btn-primary" id="mEditSave">儲存修改</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 日志查看弹窗 -->
+  <div class="modal-backdrop" id="logsModal" style="display:none;">
+    <div class="modal" style="max-width:920px; width:92%;">
+      <div class="modal-title" style="display:flex; justify-content:space-between; align-items:center;">
+        <span>服務日誌（最近 200 行）</span>
+        <button type="button" class="btn btn-ghost btn-sm" id="logsClose">關閉</button>
+      </div>
+      <pre id="logsBody" style="background:#0d1117; color:#c9d1d9; padding:14px; border-radius:8px; max-height:60vh; overflow:auto; font-size:12px; line-height:1.5; margin:0;">加載中…</pre>
+      <div style="font-size:11px; color:var(--text-faint); margin-top:6px;" id="logsMeta"></div>
+    </div>
+  </div>
+
+  <script src="/assets/js/common.js?v=45"></script>
+  <script src="/assets/js/admin.js?v=21"></script>
+</body>
+</html>

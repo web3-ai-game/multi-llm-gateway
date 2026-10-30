@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="zh-Hant" data-theme="black">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>multi-llm-chat · 充值</title>
+  <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml" />
+  <link rel="alternate icon" href="/favicon.png?v=3" type="image/png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3" />
+  <link rel="stylesheet" href="/assets/css/style.css?v=25" />
+  <script>
+    (function () {
+      var t = localStorage.getItem("dw_theme") ||
+        (document.cookie.match(/dw_theme=([^;]*)/) || [])[1] || "black";
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="/"><span class="brand-dot"></span><span class="brand-text">multi-llm-chat</span></a>
+      <div class="nav-links">
+        <div class="ctl-group" data-controls></div>
+        <div class="ctl-group" data-usermenu></div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container" style="padding-top:36px; padding-bottom:60px;">
+    <div class="page-head">
+      <h1 data-i18n="bill.title">升級與充值</h1>
+      <p style="color:var(--text-dim); margin-top:8px;" data-i18n="bill.subtitle">免費額度每天自動重置；升級 Pro 解鎖旗艦模型。</p>
+    </div>
+
+    <!-- 当前套餐 + 今日额度 -->
+    <div class="panel">
+      <h2 data-i18n="bill.current">我的方案</h2>
+      <div class="stat-grid" style="margin-bottom:18px;">
+        <div class="stat-card">
+          <div class="label" data-i18n="bill.plan">當前方案</div>
+          <div class="value accent" id="planName">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label" data-i18n="bill.today">今日已用</div>
+          <div class="value" id="todayCount">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label" data-i18n="bill.reset">距離重置</div>
+          <div class="value" id="countdown">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label" data-i18n="bill.balance">帳戶餘額</div>
+          <div class="value" id="balance">$0.00</div>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="data">
+          <thead>
+            <tr>
+              <th data-i18n="bill.tier">模型檔位</th>
+              <th data-i18n="bill.tier.models">代表模型</th>
+              <th data-i18n="bill.tier.used">今日已用</th>
+              <th data-i18n="bill.tier.limit">每日上限</th>
+            </tr>
+          </thead>
+          <tbody id="tierRows"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 收费介绍 -->
+    <div class="panel">
+      <h2 data-i18n="bill.plans.title">方案對比</h2>
+      <div class="plan-grid">
+        <div class="plan-card">
+          <h3 data-i18n="bill.free.name">標準免費版</h3>
+          <div class="plan-price"><span data-i18n="bill.free.price">$0</span></div>
+          <p class="plan-note" data-i18n="bill.free.note">每天自動贈送額度，零成本即刻對話</p>
+          <ul class="plan-list">
+            <li>Supergrok (Grok 4.6) 旗舰高浓度输出</li>
+            <li>Grok 2 / Gemini Flash / Flash-Lite 日常畅享</li>
+            <li>支持多模态图片解析、联网搜索与深度思考</li>
+            <li>内置主动温情基座提示词</li>
+          </ul>
+        </div>
+        <div class="plan-card featured">
+          <span class="plan-badge" data-i18n="bill.pro.badge">推薦</span>
+          <h3 data-i18n="bill.pro.name">Pro 尊享會員</h3>
+          <div class="plan-price">$<span id="proPrice">5</span><span class="plan-per" data-i18n="bill.pro.per">/月</span></div>
+          <p class="plan-note" data-i18n="bill.pro.note">解鎖更高頻次與專屬通道服務</p>
+          <ul class="plan-list">
+            <li>Supergrok 尊享极速并发通道</li>
+            <li>Gemini 2.5 Pro 深度推理无限制</li>
+            <li>多模态视觉与长文本极速响应</li>
+            <li>专属 VIP 节点与优先客户支持</li>
+          </ul>
+          <a class="btn btn-primary" href="#pay" style="width:100%; justify-content:center; margin-top:6px;" data-i18n="bill.pro.cta">立即升級</a>
+        </div>
+      </div>
+      <p style="color:var(--text-faint); font-size:13px; margin-top:14px;">
+        <span data-i18n="bill.topup.note">也可直接充值，最低</span> $<span id="minTopup">2</span>
+      </p>
+    </div>
+
+    <!-- 支付通道 -->
+    <div class="panel" id="pay">
+      <h2 data-i18n="bill.pay.title">付款方式</h2>
+      <p style="color:var(--text-dim); font-size:14px; margin-bottom:18px;" data-i18n="bill.pay.desc">
+        掃碼付款後，請將付款截圖發送到下方郵箱，我們會盡快為你開通。
+      </p>
+      <div class="pay-grid">
+        <div class="pay-card">
+          <div class="pay-name"><span class="tag" style="background:#1677ff;color:#fff;margin-right:6px;">Alipay</span> <span data-i18n="bill.pay.alipay">支付寶</span></div>
+          <div class="pay-qr" id="alipayBox"><span class="pay-empty" data-i18n="bill.pay.soon">收款碼配置中</span></div>
+        </div>
+        <div class="pay-card">
+          <div class="pay-name"><span class="tag" style="background:#07c160;color:#fff;margin-right:6px;">WeChat</span> <span data-i18n="bill.pay.wechat">微信支付</span></div>
+          <div class="pay-qr" id="wechatBox"><span class="pay-empty" data-i18n="bill.pay.soon">收款碼配置中</span></div>
+        </div>
+        <div class="pay-card" id="gpayCard">
+          <div class="pay-name"><span class="tag" style="background:#6366f1;color:#fff;margin-right:6px;">Card</span> <span data-i18n="bill.pay.gpay">Google Pay / Stripe</span></div>
+          <div class="pay-qr"><span class="pay-empty" data-i18n="bill.pay.gpay.soon">即將開放</span></div>
+        </div>
+      </div>
+      <div class="pay-contact">
+        <div data-i18n="bill.pay.contact">付款後請聯繫：</div>
+        <a id="contactEmail" href="#">—</a>
+        <div class="pay-steps">
+          <span data-i18n="bill.pay.step1">1. 掃碼付款</span> →
+          <span data-i18n="bill.pay.step2">2. 郵件發送截圖與用戶名</span> →
+          <span data-i18n="bill.pay.step3">3. 人工核驗後開通</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/assets/js/common.js?v=45"></script>
+  <script src="/assets/js/billing.js?v=18"></script>
+</body>
+</html>

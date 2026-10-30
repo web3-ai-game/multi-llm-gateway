@@ -1,53 +1,90 @@
-[PUBLIC-READY]
+# multi-llm-gateway
 
-# Deepweay Chat / Deepweay Chat
+一個帳號、七家廠商、三十二個模型。單一 Go 二進位，配額在串流寫出之前檢查。
 
-面向 AI 初学者的多模型聚合聊天平台——一个账号统一调用 7 大厂商 32 个主流模型，开放注册，按模型档位给每日免费额度，Pro 会员可解锁更高额度。
+One account, seven vendors, thirty-two models. One Go binary. Quota is checked before the stream is written.
 
-A multi-model aggregator chat platform for AI beginners — one account, unified access to 32 mainstream models across 7 vendors. Open registration, daily free quota by model tier, Pro membership unlocks higher limits.
+這是脫敏後的公開匯出。正式環境的主機、部署腳本和金鑰留在私有庫。本樹沒有原點 IP。
 
-Public export of the gateway. Production host, deploy scripts, and secrets stay in the private repo.
+This is a sanitized public export. The production host, deploy scripts, and secrets stay in the private repo. This tree has no origin address.
 
-## 技术栈 / Stack
+## 這份程式在做什麼
 
-- **后端 / Backend**：Go 1.23，`net/http` + `go-chi/chi/v5`，编译为单一二进制 / compiles to a single binary
-- **数据库 / Database**：SQLite（`modernc.org/sqlite` 纯 Go 驱动，WAL 模式 / pure-Go driver, WAL mode）
-- **前端 / Frontend**：原生 HTML/CSS/JS，`go:embed` 直接打进二进制，零构建步骤 / vanilla HTML/CSS/JS embedded via `go:embed`, zero build step
-- **认证 / Auth**：bcrypt + httpOnly Cookie，开放注册（无需邮箱）/ open registration (no email required)
-- **AI 接入 / AI backend**：OpenRouter（默认）+ sub2api（可选，OpenAI 兼容协议）/ OpenRouter (default) + sub2api (optional, OpenAI-compatible)
-- **部署 / Deploy**：systemd + Caddy 反向代理 / reverse proxy
+訪客註冊後就能聊天，不需要信箱。模型來自 xAI、Anthropic、OpenAI、Google、DeepSeek、MiniMax、Moonshot。新增一家廠商是註冊表的一列，兩條上游共用同一套 SSE。
 
-## 功能 / Features
+每日免費額度按檔位計算：`cheap`、`standard`、`premium`、`pro`。紐約時間午夜重置。Pro 檔較高。管理員也可以對單一使用者設定美元上限。
 
-- **7 厂商 32 个模型统一接入 / 7 vendors, 32 models, unified access**：Grok(xAI)、Claude(Anthropic)、GPT(OpenAI)、Gemini(Google)、DeepSeek、MiniMax、Kimi(Moonshot)。可插拔 Provider 架构，一套 SSE 流式代码复用两条通道，新增供应商只需在注册表加一行 / pluggable provider architecture, one SSE streaming implementation shared across both channels, adding a vendor is a one-line registry entry (`internal/models/models.go`)
-- **免费 + Pro 会员配额 / Free + Pro membership quota**（`internal/chat`, `internal/billing`）：按模型档位（cheap/standard/premium/pro）给每日免费次数，纽约时区每日 0 点重置；Pro 会员额度更高，admin 也可对单用户设 USD 总额度覆盖 / daily free message counts by model tier, resets at midnight NY time; Pro members get higher limits, admin can also override per-user with a USD quota
-- **助手系统 / Assistants**（Cherry 风格 / Cherry-style）：每用户可建多个助手（名称/emoji/系统提示词/模型/温度），会话创建时快照系统提示词 / each user can create multiple assistants (name/emoji/system prompt/model/temperature), sessions snapshot the prompt at creation
-- **Admin 可视化后台 / Admin panel**（`internal/admin`, `static/admin.html`）：用户列表与配额、Provider key 配置、Pro 开通、站点用量统计，全程无需碰服务器命令行 / user/quota management, provider key config, Pro activation, usage stats — no server shell needed
-- **go:embed 零构建部署 / Zero-build deploy**：前端资源与后端一起编译进单个二进制，按职责拆分 9 个 internal 模块（store / provider / oai / models / pricing / chat / auth / admin / usage）/ frontend assets compiled into the binary alongside the backend; 9 internal modules split by responsibility
+助手在建立當下把系統提示詞快照進會話。之後改助手，不會改寫舊紀錄。
 
-## 本地运行 / Getting started
+管理後台涵蓋使用者、配額、供應商金鑰和用量。金鑰在執行時注入，不進 git。
+
+## What it does
+
+A visitor registers and chats. No email. Models come from xAI, Anthropic, OpenAI, Google, DeepSeek, MiniMax, and Moonshot. A new vendor is one registry row. Both upstreams share one SSE writer.
+
+Daily free quota is bucketed: `cheap`, `standard`, `premium`, `pro`. It resets at midnight America/New_York. Pro is the higher tier. An admin can also set a USD cap on one user.
+
+An assistant snapshots its system prompt onto the session at creation. Later edits do not rewrite history.
+
+The admin panel covers users, quotas, provider keys, and usage. Keys are injected at runtime and are not in git.
+
+## 技術棧
+
+Go 1.23、`chi`、`modernc.org/sqlite`（純 Go，WAL）、bcrypt、httpOnly cookie。前端是原生 HTML、CSS、JS，用 `go:embed` 打進同一個二進位。沒有前端建置步驟。
+
+預設上游是 OpenRouter。另一條是 OpenAI 相容協定，給自建閘道用。
+
+Go 1.23, chi, `modernc.org/sqlite` (pure Go, WAL), bcrypt, httpOnly cookie. The UI is vanilla HTML, CSS, and JS, embedded with `go:embed`. There is no frontend build.
+
+The default upstream is OpenRouter. The second channel speaks the OpenAI-compatible protocol, for a gateway you run yourself.
+
+## 本地執行
+
+需要 Go 1.23 以上。
+
+Needs Go 1.23 or newer.
 
 ```bash
 go run .
 ```
 
-默认监听 `:8080`（可通过 `PORT` 覆盖）。`.env` 中 `OPENROUTER_API_KEY` 为可选项，仅用于首次启动播种到数据库，后续可在 admin 后台可视化配置。
+預設聽 `:8080`。用 `PORT` 改。`OPENROUTER_API_KEY` 可省略，只在第一次啟動時把供應商種進資料庫。之後在管理後台改。
 
-Listens on `:8080` by default (override with `PORT`). `OPENROUTER_API_KEY` in `.env` is optional — used only to seed the database on first run; afterwards it's configurable from the admin panel.
+Listens on `:8080`. Override with `PORT`. `OPENROUTER_API_KEY` is optional. It only seeds the database on first boot. After that, change providers in the admin panel.
 
-## 环境变量 / Env
-
-| 键 / Key | 说明 / Description |
+| 變數 | 用途 |
 |---|---|
-| `OPENROUTER_API_KEY` | OpenRouter API key（可选，首次播种用）/ optional, seeds first run — injected at runtime, never committed |
-| `PORT` | 监听端口，默认 8080 / listen port, default 8080 |
-| `DB_PATH` | SQLite 路径，默认 `./data/deepweay.db` / SQLite path |
-| `TITLE_GEN_MODEL` | 生成会话标题用的便宜模型 / cheap model used to generate chat titles |
-| `ADMIN_USERNAME` | 首次启动创建的管理员账号 / admin account created on first run |
-| `ADMIN_PASSWORD` | 管理员密码，首次部署后需修改 / admin password, change after first deploy — injected at runtime, never committed |
+| `OPENROUTER_API_KEY` | 可省略。第一次啟動時種入資料庫。Optional. Seeds the database on first boot. |
+| `PORT` | 預設 `8080`。Default `8080`. |
+| `DB_PATH` | SQLite 路徑。預設 `./data/deepweay.db`。SQLite path. |
+| `TITLE_GEN_MODEL` | 用來產生會話標題的便宜模型。Cheap model used to title a session. |
+| `ADMIN_USERNAME` | 第一次啟動建立的管理員帳號。Admin account created on first boot. |
+| `ADMIN_PASSWORD` | 管理員密碼。第一次部署後就改。Admin password. Change it after the first deploy. |
 
-真实值均不进仓库，No real values are committed. Inject them at runtime.
+真實值不要提交。Inject real values at runtime. Do not commit them.
 
-## 完成度 / Status
+## 目錄
 
-能跑，核心功能（多模型对话、免费/Pro 配额、助手系统、admin 后台）已完整实现并在生产运行。/ Runnable — core features (multi-model chat, free/Pro quota, assistants, admin panel) are fully implemented and running in production.
+| 路徑 | 職責 |
+|---|---|
+| `internal/models` | 廠商與模型註冊表。Vendor and model registry. |
+| `internal/provider` | 上游介面。Upstream interface. |
+| `internal/chat` | 配額檢查與 SSE。Quota check and SSE. |
+| `internal/billing` | 檔位與 Pro。Tiers and Pro. |
+| `internal/store` | SQLite。 |
+| `internal/admin` | 管理後台。Admin panel. |
+| `static/` | 嵌入的前端。Embedded UI. |
+
+## 狀態
+
+核心對話、配額、助手和管理後台已在正式環境跑過。這個公開樹不含部署腳本。
+
+Core chat, quotas, assistants, and the admin panel have run in production. This public tree does not include deploy scripts.
+
+## 授權
+
+未另附授權檔。看原始碼可以，拿去商用前先來信。
+
+No license file is attached. Reading the source is fine. Ask before commercial use.
+
+聯絡：one@oece-x.com

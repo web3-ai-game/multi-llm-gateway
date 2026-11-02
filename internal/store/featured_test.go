@@ -4,6 +4,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"deepweay-chat/internal/models"
 )
 
 func TestApplyFeaturedModels(t *testing.T) {
@@ -17,15 +19,16 @@ func TestApplyFeaturedModels(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if n != 8 {
-		t.Fatalf("enabled %d, want 8", n)
+	want := len(models.Featured)
+	if n != want {
+		t.Fatalf("enabled %d, want %d", n, want)
 	}
 	on, err := st.ListEnabledModels()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(on) != 8 {
-		t.Fatalf("list enabled %d, want 8", len(on))
+	if len(on) != want {
+		t.Fatalf("list enabled %d, want %d", len(on), want)
 	}
 
 	usable, err := st.ListUsableModels()
@@ -59,15 +62,21 @@ func TestApplyFeaturedModels(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if n2 != 2 {
-		t.Fatalf("activate grok featured %d, want 2 (grok-4.3 + supergrok)", n2)
+	wantGrok := 0
+	for _, spec := range models.Featured {
+		if spec.Vendor == "grok" {
+			wantGrok++
+		}
+	}
+	if n2 != wantGrok {
+		t.Fatalf("activate grok featured %d, want %d", n2, wantGrok)
 	}
 	usable, err = st.ListUsableModels()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(usable) != 2 {
-		t.Fatalf("usable after grok key %d, want 2", len(usable))
+	if len(usable) != wantGrok {
+		t.Fatalf("usable after grok key %d, want %d", len(usable), wantGrok)
 	}
 	for _, m := range usable {
 		if m.Vendor != "grok" {

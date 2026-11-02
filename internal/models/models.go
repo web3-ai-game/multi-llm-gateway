@@ -190,8 +190,7 @@ type FeaturedModel struct {
 	Hints       []string // 用来匹配服务商 URL/名称
 }
 
-// Featured 用户端聊天下拉精选 8 款：Vultr 7 款 + xAI Grok 1 款，按价格从低到高排。
-// 顺序由用户在 .kilo/plans/1787746933469-chat-dropdown-8-vultr-admin.md 中确认。
+// Featured 用户端聊天下拉精选：6 款第三方 + 3 款 xAI，按价格从低到高排。
 var Featured = []FeaturedModel{
 	{
 		ID: "minimax-m3", RawID: "minimax-m3", Aliases: []string{"minimax-m3", "minimax/minimax-m3"},

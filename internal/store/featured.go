@@ -8,7 +8,7 @@ import (
 
 const FeaturedAppliedKey = "featured_v13_vultr_flagship_applied"
 
-// ApplyFeaturedModels 关掉全部模型，只上架聊天页 8 款精选（Vultr 7 款 + xAI Grok 2 款）。
+// ApplyFeaturedModels 关掉全部模型，只上架 models.Featured 里的精选。
 // 自动按 Hints 匹配服务商：Vultr 条目命中 vultrinference，xAI 条目命中 api.x.ai。
 func (s *Store) ApplyFeaturedModels() (int, error) {
 	providers, err := s.ListProviders()

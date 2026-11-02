@@ -30,19 +30,23 @@ The admin panel covers users, quotas, provider keys, and usage. Keys are injecte
 
 ## 技術棧
 
-Go 1.23、`chi`、`modernc.org/sqlite`（純 Go，WAL）、bcrypt、httpOnly cookie。前端是原生 HTML、CSS、JS，用 `go:embed` 打進同一個二進位。沒有前端建置步驟。
+Go 1.25、`chi`、`modernc.org/sqlite`（純 Go，WAL）、bcrypt、httpOnly cookie。前端是原生 HTML、CSS、JS，用 `go:embed` 打進同一個二進位。沒有前端建置步驟。
 
-預設上游是 OpenRouter。另一條是 OpenAI 相容協定，給自建閘道用。
+預設上游是 OpenRouter。另一條是 OpenAI 相容協定，給自建閘道用。`internal/provider/mock` 不讀金鑰、不開網路。
 
-Go 1.23, chi, `modernc.org/sqlite` (pure Go, WAL), bcrypt, httpOnly cookie. The UI is vanilla HTML, CSS, and JS, embedded with `go:embed`. There is no frontend build.
+## 授權
 
-The default upstream is OpenRouter. The second channel speaks the OpenAI-compatible protocol, for a gateway you run yourself.
+[MIT](LICENSE)。看原始碼、改、再散佈都可以。金鑰仍不要提交。
 
 ## 本地執行
 
-需要 Go 1.23 以上。
+需要 Go 1.25。模組版本寫在 `go.mod`。
 
-Needs Go 1.23 or newer.
+```bash
+go run ./cmd/demo
+```
+
+這條不需要金鑰。它會印出 7 家廠商的 SSE 樣本，以及 `cheap` / `standard` / `premium` / `pro` 在紐約午夜前後的額度扣減。重置時刻是日曆上的次日零點。
 
 ```bash
 go run .
@@ -50,41 +54,28 @@ go run .
 
 預設聽 `:8080`。用 `PORT` 改。`OPENROUTER_API_KEY` 可省略，只在第一次啟動時把供應商種進資料庫。之後在管理後台改。
 
-Listens on `:8080`. Override with `PORT`. `OPENROUTER_API_KEY` is optional. It only seeds the database on first boot. After that, change providers in the admin panel.
-
 | 變數 | 用途 |
 |---|---|
-| `OPENROUTER_API_KEY` | 可省略。第一次啟動時種入資料庫。Optional. Seeds the database on first boot. |
-| `PORT` | 預設 `8080`。Default `8080`. |
-| `DB_PATH` | SQLite 路徑。預設 `./data/deepweay.db`。SQLite path. |
-| `TITLE_GEN_MODEL` | 用來產生會話標題的便宜模型。Cheap model used to title a session. |
-| `ADMIN_USERNAME` | 第一次啟動建立的管理員帳號。Admin account created on first boot. |
-| `ADMIN_PASSWORD` | 管理員密碼。第一次部署後就改。Admin password. Change it after the first deploy. |
+| `OPENROUTER_API_KEY` | 可省略。第一次啟動時種入資料庫。 |
+| `PORT` | 預設 `8080`。 |
+| `DB_PATH` | SQLite 路徑。預設 `./data/deepweay.db`。 |
+| `TITLE_GEN_MODEL` | 用來產生會話標題的便宜模型。 |
+| `ADMIN_USERNAME` | 第一次啟動建立的管理員帳號。 |
+| `ADMIN_PASSWORD` | 管理員密碼。第一次部署後就改。 |
 
-真實值不要提交。Inject real values at runtime. Do not commit them.
+真實值不要提交。
 
 ## 目錄
 
 | 路徑 | 職責 |
 |---|---|
-| `internal/models` | 廠商與模型註冊表。Vendor and model registry. |
-| `internal/provider` | 上游介面。Upstream interface. |
-| `internal/chat` | 配額檢查與 SSE。Quota check and SSE. |
-| `internal/billing` | 檔位與 Pro。Tiers and Pro. |
-| `internal/store` | SQLite。 |
-| `internal/admin` | 管理後台。Admin panel. |
-| `static/` | 嵌入的前端。Embedded UI. |
+| `internal/models` | 廠商與模型註冊表 |
+| `internal/provider` | 上游介面。`mock` 子套件不讀金鑰 |
+| `cmd/demo` | 離線 SSE 與配額走查 |
+| `internal/chat` | 配額檢查與 SSE |
+| `internal/billing` | 檔位、Pro、紐約計費日 |
+| `internal/store` | SQLite |
+| `internal/admin` | 管理後台 |
+| `static/` | 嵌入的前端 |
 
-## 狀態
-
-核心對話、配額、助手和管理後台已在正式環境跑過。這個公開樹不含部署腳本。
-
-Core chat, quotas, assistants, and the admin panel have run in production. This public tree does not include deploy scripts.
-
-## 授權
-
-未另附授權檔。看原始碼可以，拿去商用前先來信。
-
-No license file is attached. Reading the source is fine. Ask before commercial use.
-
-聯絡：one@oece-x.com
+核心對話、配額、助手和管理後台已在正式環境跑過。這個公開樹不含部署腳本。真實值不要提交。

@@ -112,8 +112,10 @@ func DayStart(now time.Time) time.Time {
 }
 
 // NextReset 返回下一次额度重置时刻（纽约次日 0 点）。
+// 用日曆加一天，不用 Add(24h)。夏令時那天 24 小時會落在當天 23:00。
 func NextReset(now time.Time) time.Time {
-	return DayStart(now).Add(24 * time.Hour)
+	n := now.In(nyLoc)
+	return time.Date(n.Year(), n.Month(), n.Day()+1, 0, 0, 0, 0, nyLoc)
 }
 
 // TierUsage 汇总某档位的用量与上限。
